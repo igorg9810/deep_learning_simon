@@ -1,5 +1,4 @@
 import numpy as np
-from numpy import linalg as LA
 
 class KNN:
     """
@@ -119,7 +118,11 @@ class KNN:
         for i in range(num_test):
             # TODO: Implement choosing best class based on k
             # nearest training samples
-            pass
+            k_nearest = self.train_y[np.argpartition(dists[i], self.k)[:self.k]]
+            if (len(np.where(k_nearest == True)[0]) > len(k_nearest)/2):
+                pred[i] = True
+            else:
+                pred[i] = False
         return pred
 
     def predict_labels_multiclass(self, dists):
@@ -140,5 +143,8 @@ class KNN:
         for i in range(num_test):
             # TODO: Implement choosing best class based on k
             # nearest training samples
+            k_nearest = self.train_y[np.argpartition(dists[i], self.k)[:self.k]]
+            unique_elements, counts_elements = np.unique(k_nearest, return_counts=True)
+            pred[i] = unique_elements[np.argmax(counts_elements)]
             pass
         return pred
