@@ -14,12 +14,21 @@ def softmax(predictions):
         probability for every class, 0..1
     '''
     # TODO implement softmax
-    predictions -= np.max(predictions)
     exp_vect = np.vectorize(math.exp)
-    exponents = exp_vect(predictions)
+    exponents = np.array(predictions.shape)
     probs = np.zeros(exponents.shape)
-    for i in range(exponents.shape[0]):
-        probs[i] = exponents[i]/np.sum(exponents)
+    if (len(predictions.shape) == 2):
+        rowmax = np.amax(predictions, axis = 1, keepdims=True)
+        new_predictions = np.subtract(predictions, rowmax)
+        exponents = exp_vect(new_predictions)
+        exp_sum = np.sum(exponents, axis = 1, keepdims=True)
+        probs = exponents/exp_sum
+    else:
+        new_predictions = predictions - np.max(predictions)
+        exponents = exp_vect(new_predictions)
+        exp_sum = np.sum(exponents)
+        probs = exponents/exp_sum
+    print(probs)
     return probs
 
 
@@ -37,7 +46,7 @@ def cross_entropy_loss(probs, target_index):
       loss: single value
     '''
     # TODO implement cross-entropy
-    loss = -1*probs[target_index]
+    loss = np.sum(-1*math.log(probs[target_index]))
     return loss
 
 
@@ -57,8 +66,27 @@ def softmax_with_cross_entropy(predictions, target_index):
       dprediction, np array same shape as predictions - gradient of predictions by loss value
     '''
     # TODO implement softmax with cross-entropy
-    raise Exception("Not implemented!")
-
+    exp_vect = np.vectorize(math.exp)
+    exponents = np.array(predictions.shape)
+    probs = np.zeros(exponents.shape)
+    dpredictions = np.array(predictions.shape)
+    if (len(predictions.shape) == 2):
+        rowmax = np.amax(predictions, axis = 1, keepdims=True)
+        new_predictions = np.subtract(predictions, rowmax)
+        exponents = exp_vect(new_predictions)
+        exp_sum = np.sum(exponents, axis = 1, keepdims=True)
+        probs = exponents/exp_sum
+    else:
+        new_predictions = predictions - np.max(predictions)
+        exponents = exp_vect(new_predictions)
+        exp_sum = np.sum(exponents)
+        probs = exponents/exp_sum
+    print(probs, 'Probs vector')
+    loss = np.sum(-1*math.log(probs[target_index]))
+    dprediction = -1*(1/loss)
+    dprediction *= predictions
+    print(dprediction)
+	
     return loss, dprediction
 
 
