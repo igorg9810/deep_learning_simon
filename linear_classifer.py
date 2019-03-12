@@ -28,7 +28,6 @@ def softmax(predictions):
         exponents = exp_vect(new_predictions)
         exp_sum = np.sum(exponents)
         probs = exponents/exp_sum
-    print(probs)
     return probs
 
 
@@ -46,7 +45,12 @@ def cross_entropy_loss(probs, target_index):
       loss: single value
     '''
     # TODO implement cross-entropy
-    loss = np.sum(-1*math.log(probs[target_index]))
+    if (type(target_index) != int):
+        m = len(target_index)
+        print(probs[range(m), target_index], 'Probs vector for true class')
+        loss = np.sum(-1*np.log(probs[range(m), target_index]))/m
+    else:
+	    loss = -1*np.log(probs[target_index])
     return loss
 
 
@@ -69,7 +73,6 @@ def softmax_with_cross_entropy(predictions, target_index):
     exp_vect = np.vectorize(math.exp)
     exponents = np.array(predictions.shape)
     probs = np.zeros(exponents.shape)
-    dpredictions = np.array(predictions.shape)
     if (len(predictions.shape) == 2):
         rowmax = np.amax(predictions, axis = 1, keepdims=True)
         new_predictions = np.subtract(predictions, rowmax)
@@ -81,12 +84,18 @@ def softmax_with_cross_entropy(predictions, target_index):
         exponents = exp_vect(new_predictions)
         exp_sum = np.sum(exponents)
         probs = exponents/exp_sum
-    print(probs, 'Probs vector')
-    loss = np.sum(-1*math.log(probs[target_index]))
-    dprediction = -1*(1/loss)
-    dprediction *= predictions
-    print(dprediction)
-	
+    print(probs, 'Probs')
+    dprediction = np.array(probs)
+    if (type(target_index) != int):
+        m = len(target_index)
+        print(probs[range(m), target_index], 'Probs vector for true class')
+        loss = np.sum(-1*np.log(probs[range(m), target_index]))/m
+        dprediction[range(m), target_index] -= 1
+        dprediction /= m
+    else:
+        loss = -1*np.log(probs[target_index])
+        dprediction[target_index] -= 1
+        print(probs[target_index], 'Probs value for true class')
     return loss, dprediction
 
 
